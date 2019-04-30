@@ -1,2 +1,5 @@
-# Link All of Things
-Link everything you want!
+# Collocō
+
+Collect distributed data into a repository even if the data is in anywhere.
+
+
