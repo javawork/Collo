@@ -22,10 +22,10 @@ Please read the following for the detail.
 ## Setting repositories - [ repos.js ]
 
 <pre><code>
- “Repo name” : {
-   name : “name to use in description”,
-   type : “write of your repository type. Input ‘mssql’ if your repo is MSSQL ”,
-   config :  { 
+ <b>“Repo name”</b>: {
+   <b>name</b> : “name to use in description”,
+   <b>type</b> : “write of your repository type. Input ‘mssql’ if your repo is MSSQL ”,
+   <b>config</b> :  { 
     …   // Detail information depends on your repo. Check this link.
    }
  }
@@ -34,14 +34,14 @@ Please read the following for the detail.
 ## Setting jobs - [ jobs.js ]
 
 <pre><code>
- “name” : {
-   schedule : “* * * * * *”, // it’s like a “cron” setting
-   from : “Set the ‘repo name’ in ‘repos.js’ to read ”,
-   get_query :  “input your query or command to read”,
-   get_query_param : “set parameters if you need for ‘get_query’.”,
-   to : “Set the ‘repo name’ in ‘repos.js’ to write”,
-   set_query : “input your query or command to write”,
-   set_query_param : “set parameters if you need for ‘set_query’.”
+ <b>“name”</b> : {
+   <b>schedule</b> : “* * * * * *”, // it’s like a “cron” setting
+   <b>from</b> : “Set the ‘repo name’ in ‘repos.js’ to read ”,
+   <b>get_query</b> :  “input your query or command to read”,
+   <b>get_query_param</b> : “set parameters if you need for ‘get_query’.”,
+   <b>to</b> : “Set the ‘repo name’ in ‘repos.js’ to write”,
+   <b>set_query</b> : “input your query or command to write”,
+   <b>set_query_param</b> : “set parameters if you need for ‘set_query’.”
 }
 </code></pre>
 
