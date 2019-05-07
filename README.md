@@ -22,22 +22,37 @@ Please read the following for the detail.
 ## Setting repositories - [ repos.js ]
 
 > “Repo name” : {
-> name : “name to use in description”,
-> type : “write of your repository type. Input ‘mssql’ if your repo is MSSQL ”,
-> config :  { 
-> …   // Detail information depends on your repo. Check this link.
+
+>   name : “name to use in description”,
+
+>   type : “write of your repository type. Input ‘mssql’ if your repo is MSSQL ”,
+
+>   config :  { 
+
+>    …   // Detail information depends on your repo. Check this link.
+
+>   }
+
 > }
 
 ## Setting jobs - [ jobs.js ]
 
 > “name” : {
+
 >   schedule : “* * * * * *”, // it’s like a “cron” setting
-> 	from : “Set the ‘repo name’ in ‘repos.js’ to read ”,
+
+> 	 from : “Set the ‘repo name’ in ‘repos.js’ to read ”,
+
 >   get_query :  “input your query or command to read”,
+
 >   get_query_param : “set parameters if you need for ‘get_query’.”,
+
 >   to : “Set the ‘repo name’ in ‘repos.js’ to write”,
+
 >   set_query : “input your query or command to write”,
+
 >   set_query_param : “set parameters if you need for ‘set_query’.”
+
 > }
 
 ## Run - [ collo.js ]
