@@ -26,10 +26,12 @@ Please read the following for the detail.
    <b>name</b> : “name to use in description”,
    <b>type</b> : “write of your repository type. Input ‘mssql’ if your repo is MSSQL ”,
    <b>config</b> :  { 
-    …   // Detail information depends on your repo. Check this link.
+    …   // Detail information depends on your repo. 
    }
  }
 </code></pre>
+
+Detail information depends on your repo. Check [this link](Setting_repository.md).
 
 ## Setting jobs - [ jobs.js ]
 
