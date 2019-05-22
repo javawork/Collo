@@ -31,8 +31,6 @@ Please read the following for the detail.
  }
 </code></pre>
 
-Detail information depends on your repo. Check [this link](Setting_repository.md).
-
 ## Setting jobs - [ jobs.js ]
 
 <pre><code>
@@ -46,6 +44,8 @@ Detail information depends on your repo. Check [this link](Setting_repository.md
    <b>set_query_param</b> : “set parameters if you need for ‘set_query’.”
 }
 </code></pre>
+
+For more infomation for setting repositories and jobs, please refer to [this link](SETTING.md) 
 
 ## Run - [ collo.js ]
 You need “Node.js” to run “collo”. Run as belows.
