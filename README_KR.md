@@ -36,27 +36,177 @@ Collo는 단계적으로 사용 가능한 저장소를 늘릴 예정입니다. �
 
 테스트를 위해 두 개의 샘플 파일을 준비해 두었습니다. 
 
+__/samples/line_formated_sample.log__  // 웹 서버의 로그 포멧으로 제작된 샘플 파일입니다. grok을 사용해서 데이터를 읽어오는 샘플을 볼 수 있습니다.
+
+__/samples/sample.json__  // json 포멧으로 제작된 샘플 파일입니다.
+
+미리 세팅된 저장소와 작업에 설정된 내용을 우선 살펴보겠습니다.
+
+"repos.json" 파일에 미리 정의된 저장소에는 아래와 같습니다.
 <pre><code>
-/samples/line_formated_sample.log  // 웹 서버의 로그 포멧으로 제작된 샘플 파일입니다. grok을 사용해서 데이터를 읽어오는 샘플을 볼 수 있습니다.
-/samples/sample.json  // json 포멧으로 제작된 샘플 파일입니다.
+{
+  "json_sample": {
+    "type": "file",
+    "name": "json_sample",
+    "config": {
+        "path": "./samples/sample.json"
+    }
+  },
+  "writing_sample": {
+    "type": "file",
+    "name": "writing_sample",
+    "config": {
+      "path": "./samples/target_file_@__today" // @__today는 해당 날짜로 변환되는 collo에서 사용하는 예약어입니다.
+    }
+  },
+  "console": { // 테스트를 위해 읽어온 정보를 console 화면에 바로 출력할 수 있습니다.
+    "name": "console for debug",
+    "type": "console"
+  }
+}
 </code></pre>
 
-### MySql, MSSQL과 연동하기
+__"json_sample"__ 에는 json 포멧의 테스트 데이터가 있으며, __"writing_sample"__ 은 앞으로 생성될, 읽어온 정보를 쓸 파일명을 지정한 것입니다. 파일명 뒤에 __"@__today"__ 와 같은 특별한 예약어에 대해서는 문서 하단의 설명을 참고하세요. 
+
+"jobs.json" 파일에 샘플로 등록된 작업은 아래와 같습니다.
+<pre><code>
+{
+  "test_job": {
+    "schedule": "*/10 * * * * *",
+    "from": "json_sample",
+    "get_query": "json {}",
+    "to" : "console",
+    "set_query": "{'date': ? , 'ip' : ? , 'theday' : ?}",
+    "set_query_param": "@__yesterday as string, @ip as string, @today as int",
+    "bProc": 1
+  }
+}
+</code></pre>
+
+위 내용은 10초에 한 번씩 json_sample 저장소에서 json 포멧의 데이터를 읽어 "set_query"에 지정한 포멧에 "set_query_param"에 지정된 값을 삽입하여,  "console"에 출력하는 내용입니다. 참고로 "set_query"의 "?"에 "set_query_param"에 정의된 값을 대체하기 됩니다. 상세한 내용은 문서 하단의 설명을 참고하세요.
+
+이제 Collo를 실행해서 "sample.json"에 있는 내용이 "set_query"에 지정한 포멧으로 출력되는지 살펴보겠습니다. 
+
+먼저 npm들을 설치한 후 collo를 실행하세요.
+<pre><code>
+> npm install 
+> node collo.js
+</code></pre>
+
+이를 실행하면 화면에 "sample.json"에 정의된 "{ "today" : 20190528 , "ip": "150.56.23.1" }"과 같은 포멧의 데이터를 읽은 후,
+"{'date': "2019-06-13" , 'ip' : "150.56.23.1" , 'theday' : 20190528}" 와 같은 포멧으로 출력되는 것을 볼 수 있습니다.
+
+__Collo는 한번 읽었던 내용을 중복해서 읽지 않기 위해 읽었던 위치를 "savedata.json"이라는 파일에 항상 기억하고 있습니다. 만약 초기화가 필요한 경우 해당 파일을 지우거나 수정하여 사용할 수 있습니다.__
 
 
+### 샘플 변경해보기
+
+콘솔에 출력되는 내용을 지정된 저장소로 저장하도록 샘플을 변경해 보겠습니다.
 
 
-### 실행하기
+#### 읽어온 내용을 File에 쓰기
 
-“collo”를 실행하려면 NodeJS가 필요합니다. Collo를 설치한 폴더에서 아래와 같이 실행하세요.
->  npm start
+위의 저장소 샘플 파일에서 "writing_file" 부분을 다시 보겠습니다.
+<pre><code>
+   .
+   .
+  "writing_sample": {
+    "type": "file",
+    "name": "writing_sample",
+    "config": {
+      "path": "./samples/target_file_@__today" // @__today는 해당 날짜로 변환되는 collo에서 사용하는 예약어입니다.
+    }
+  },
+  .
+  .
+</code></pre>
 
-저장소와 작업을 등록하면 Collo를 실행할 수 있습니다.
-"repos.json"파일에 읽거나 쓸 저장소를 등록하고, "jobs.json"파일에 데이터를 읽거나 쓸 작업을 등록하면 됩니다.
-아래 샘플과 포함된 링크를 읽어보세요.
- 
- 
+"type"은 저장소의 종류를 지정할 수 있는데, "file"은 로컬 파일에 저장하는 것을 의미합니다. 그리고 "config"의 "path"를 보면 "samples"이라는 폴더 아래 "target_file_@__today" 라고 표기된 것을 볼 수 있습니다. 현재 "samples" 폴더 안에는 해당 파일이 생성되지 않았지만, 데이터가 저장될 파일명을 이렇게 지정할 수 있습니다. 각종 파라미터 등에 "@__"가 붙어 있다면 collo에서 사용하는 예약된 키워드입니다. "@__today"는 추후 실행된 당일 날짜가 대치되어 기록됩니다. 만약 이 샘플을 실행한 날이 2019년 5월 30일이라면 새롭게 생성될 파일명은 "target_file_20190530"으로 표기될 것입니다.
+
+이제 작업을 수정해 보겠습니다.
+
+"jobs.json" 파일에 열어 아래와 같이 수정해 보겠습니다.
+<pre><code>
+{
+  "test_job": {
+    "schedule": "*/10 * * * * *",
+    "from": "json_sample",
+    "get_query": "json {}",
+    "to" : "writing_sample",
+    "set_query": "{'date': ? , 'ip' : ? , 'theday' : ?}",
+    "set_query_param": "@__yesterday as string, @ip as string, @today as int",
+    "bProc": 1
+  }
+}
+</code></pre>
+
+"from"은 데이터를 읽어올 저장소이며, "to"는 읽어온 데이터를 저장할 저장소입니다. 기존에 "console"로 기입되어 있던 것을 "writing_sample"로 수정했습니다.
+
+다시 실행해 보겠습니다. 실행전에 "savedata.json" 파일을 꼭 삭제하세요. 그렇게 하지 않는다면, "json_sample" 저장소에 새로운 내용이 없으므로 아무것도 기록되지 않을 것입니다.
+
+<pre><code> > node collo.js </code></pre>
+
+이제 "samples" 폴더에 가면 새로운 파일이 생성되어 기록된 것을 확인하실 수 있습니다. 
+
+
+#### 읽어온 내용을 MySql에 쓰기
+
+이제 읽어온 데이터를 MySql에 저장해 보겠습니다. 
+
+MySql을 위한 새로운 저장소를 등록해 보겠습니다. 먼저 repos.json파일을 열어 아래의 내용을 추가해 보겠습니다. 
+
+<pre><code> 
+.
+.,
+	myMySql : {
+		name : 'testMySql',
+		type : 'mysql',
+		config : {
+		    host :'127.0.0.1',
+		    port : 3306,
+		    user : 'db_account',
+		    password : 'db_pw',
+		    database:'Collo_Test',
+		}
+	},
+</code></pre>
+
+"config"안의 내용을 테스트 할 수 있는 자신의 mysql에 알맞게 설정해 주시기 바랍니다. 그리고 해당 DB에 "Collo_Test"라는 DB를 만들고, 아래의 스크립트를 실행해 주세요. 
+
+<pre><code> 
+CREATE TABLE `tbCollo` (
+	`date` DATE NOT NULL,
+	`ip` CHAR(32) NOT NULL COLLATE 'utf8_unicode_ci',
+	`theday` INT(11) NOT NULL
+)
+COLLATE='utf8_unicode_ci'
+ENGINE=InnoDB
+;
+</code></pre>
+
+저장소가 준비되면 작업 설정을 아래와 같이 수정합니다. 
+
+<pre><code> 
+{
+  "test_job": {
+    "schedule": "*/10 * * * * *",
+    "from": "json_sample",
+    "get_query": "json {}",
+    "to" : "myMySql",
+    "set_query" : "insert into tbCollo (date, ip, theday) values (?, ?, ?)",
+    "set_query_param" : "@__yesterday as datetime, @ip as string, @today as int"
+  },
+}
+</code></pre>
+
+"to"의 설정이 "myMySql"로 수정되었으며, "set_query"는 sql의 insert 문으로 수정된 것을 볼 수 있습니다. 
+
+이제 savedata.json을 지우고 collo를 재실행하면 DB에 데이터들이 삽입된 것을 확인할 수 있습니다.
+
+
 ## 설정하기 
+
+이제 예제에서 다루었던 설정들을 보다 상세히 알아보겠습니다.
 
 ### Setting repositories - [ repos.js ]
 
@@ -108,6 +258,19 @@ Setting에서는 설정된 저장소와 작업을 수정/삭제하거나 새로�
 
 저장소와 작업을 설정하는 방법에 대해서는 [이 문서](SETTING_KR.md) 에서 확인할 수 있습니다.
 
+
+
+
+### 실행하기
+
+“collo”를 실행하려면 NodeJS가 필요합니다. Collo를 설치한 폴더에서 아래와 같이 실행하세요.
+>  npm start
+
+저장소와 작업을 등록하면 Collo를 실행할 수 있습니다.
+"repos.json"파일에 읽거나 쓸 저장소를 등록하고, "jobs.json"파일에 데이터를 읽거나 쓸 작업을 등록하면 됩니다.
+아래 샘플과 포함된 링크를 읽어보세요.
+ 
+ 
 
 # Contributing
 
