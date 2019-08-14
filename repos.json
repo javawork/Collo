@@ -1,0 +1,9 @@
+{
+  "writing_sample": {
+    "type": "file",
+    "name": "writing_sample",
+    "config": {
+      "path": "./samples/target_file_@__today"
+    }
+  }
+}

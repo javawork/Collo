@@ -1,0 +1,98 @@
+<html>
+<% include ./header %>
+
+<body>
+<% include ./commandbar %>
+
+<div class="form-group">
+<center><table width="80%">
+  <tr><td align=left> <p id="status"></p> </td><td align=right></td></tr>
+  <tr><td colspan=2> </td></tr>
+  <tr><td colspan=2><textarea disabled class="form-control" id="console" rows=32>  </textarea></td></tr>
+  <tr><td colspan=2 align=right><p onclick="onClear();" align=right class="btn btn-sm btn-primary mr-2"> Clear </p></td></tr>
+</table></center>
+</div>
+
+</body>
+<script>
+    function isJson(_string){
+        if (typeof _string === 'object'){
+            _string = JSON.stringify(_string);
+        }
+
+        if (/^[\],:{}\s]*$/.test(_string.replace(/\\["\\\/bfnrtu]/g, '@').
+            replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
+            replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) 
+        {
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+	var lastTailValue = '';
+	function onClear(){
+		document.getElementById("console").value = "";
+	}
+	setInterval(function() {
+		var httpreq = new XMLHttpRequest();
+		httpreq.onreadystatechange = function(){
+			if(httpreq.responseText!= '' && httpreq.responseText != lastTailValue){
+				lastTailValue = httpreq.responseText;
+				var arrLine = lastTailValue.split("\n");
+				for(var i=0;i<arrLine.length;i++){
+					if(isJson(arrLine[i]) == true && arrLine[i].length > 4){
+				        if (typeof _string !== 'object')
+				            arrLine[i] = JSON.parse(arrLine[i]);
+
+						var str = arrLine[i].body;
+						var arrStr = str.split("/");
+						if(arrStr.length ==3 && arrStr[0] === "STATUS"){
+							if(arrStr[2] === "OK"){
+								document.getElementById("status").innerHTML = "Staus : <font color=green><b>" + arrStr[2] + "</b></font>, lastUpdated : " + arrStr[1];
+							}else if(arrStr[2] === "WAITING"){
+								document.getElementById("status").innerHTML = "Staus : <font color=gray><b>" + arrStr[2] + "</b></font>, lastUpdated : " + arrStr[1];
+							}else{
+								document.getElementById("status").innerHTML = "Staus : <font color=red><b>"+ arrStr[2] + "</b></font>, lastUpdated : " + arrStr[1];
+							}
+						}else{
+							document.getElementById("console").value = JSON.stringify(arrLine[i]) +"\n"+ document.getElementById("console").value;
+						}
+					}
+				}
+			}
+		}
+		httpreq.open("GET","http://" + window.location.hostname + ":" + window.location.port + "/logs", true );
+		httpreq.send(null);
+	}, 10000);
+
+    function post(path, params, method='post') {
+        // The rest of this code assumes you are not using a library.
+        // It can be made less wordy if you use one.
+        const form = document.createElement('form');
+        form.method = method;
+        form.action = path;
+
+        for (const key in params) {
+            if (params.hasOwnProperty(key)) {
+                const hiddenField = document.createElement('input');
+                hiddenField.type = 'hidden';
+                hiddenField.name = key;
+                if(typeof params[key] !== null){
+                    if(isJson(params[key]) && typeof params[key] === 'object')
+                        hiddenField.value = JSON.stringify(params[key], null, 2);
+                    else
+                        hiddenField.value = params[key];
+
+                    form.appendChild(hiddenField);
+                }
+            }
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    }	
+</script>
+
+</html>

@@ -1,0 +1,32 @@
+{
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "JSON": "^1.0.0",
+    "JSONStream": "^1.3.5",
+    "aws-sdk": "^2.442.0",
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
+    "date-utils": "^1.2.21",
+    "ejs": "^2.6.1",
+    "elasticsearch": "^15.1.1",
+    "event-stream": "^4.0.1",
+    "express": "^4.16.3",
+    "fs": "0.0.1-security",
+    "generic-pool": "^3.4.2",
+    "lodash": "^4.17.11",
+    "logstash-client": "^1.1.1",
+    "mssql": "^4.2.0",
+    "mysql": "^2.16.0",
+    "node-grok": "^2.0.3",
+    "node-schedule": "^1.3.0",
+    "nodejs-tail": "^1.1.0",
+    "nodemon": "^1.19.0",
+    "readline": "^1.3.0",
+    "redis": "^2.8.0",
+    "tedious": "^2.6.4",
+    "winston": "^3.1.0",
+    "winston-daily-rotate-file": "^3.5.1"
+  }
+}

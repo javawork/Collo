@@ -1,0 +1,12 @@
+{
+  "test_job": {
+    "schedule": "*/10 * * * * *",
+    "from": "writing_sample",
+    "get_query": "json {}",
+    "to": ["console"],
+    "set_query": ["{'date': ? , 'ip' : ? , 'theday' : ?}"],
+    "set_query_param": ["@__yesterday as datetime_mmddyyyy, @ip as string, @today as datetime_mmddyyyy"],
+    "limit_count" : 1,
+    "bProc": 0
+  }
+}

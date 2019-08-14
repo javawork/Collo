@@ -1,0 +1,23 @@
+<center>
+
+<% if(page[0] == 'dashboard' || page[0] == undefined) { %>
+	<button id="goDashboard" class="btn btn-sm btn-primary btn-rounded">Dashboard</button>
+<% } else { %>
+	<button id="goDashboard" class="btn btn-sm btn-outline-dark btn-rounded" onclick=goPage('dashboard')>Dashboard</button>
+<% } %>
+
+<% if(page[0] == 'repo') { %>
+	<button id="goRepo" class="btn btn-sm btn-primary btn-rounded">Setting</button>
+<% } else { %>
+	<button id="goRepo" class="btn btn-sm btn-outline-dark btn-rounded" onclick=goPage('repo')>Setting</button>
+<% } %>
+
+</center>
+
+<hr>
+
+<script>
+function goPage(p){
+    window.open("http://" + window.location.hostname + ":" + window.location.port + "?page="+p, "_self");
+}
+</script>
