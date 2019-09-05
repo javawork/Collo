@@ -1,0 +1,24 @@
+{
+  "redis_repo" : {
+    "name" : "redis",
+    "type" : "redis",
+    "ip": "172.31.6.33",
+    "port": 6379
+  },
+  "mysql_insert_sample" : {
+    "name" : "db4write",
+    "type" : "mysql",
+    "config" : {
+      "host" :"172.31.6.44",
+      "port" : 3306,
+      "user" : "tester",
+      "password" : "test_pw",
+      "database":"dbTest1",
+      "multipleStatements": true
+    }
+  },
+  "console" : {
+    "name" : "console",
+  	"type" : "console"
+  }
+}

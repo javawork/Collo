@@ -1,0 +1,37 @@
+{
+  "mssql_read_repo" : {
+    "name" : "mssql_read",
+    "type" : "mssql",
+    "config" : {
+      "user": "tester",
+      "password": "tester_pw",
+      "server": "127.0.0.1",
+      "port": 1433,
+      "database" : "dbTest_mssql",
+      "pool" : {
+        "min": 1,
+        "max": 2,
+        "idleTimeoutMillis": 30000
+      },
+      "options": {
+          "encrypt": false
+      }
+    }
+  },
+  "mysql_insert_sample" : {
+    "name" : "db4write",
+    "type" : "mysql",
+    "config" : {
+      "host" :"127.0.0.1",
+      "port" : 3306,
+      "user" : "tester",
+      "password" : "test_pw",
+      "database":"dbTest1",
+      "multipleStatements": true
+    }
+  },
+  "console" : {
+    "name" : "console",
+  	"type" : "console"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "multi_mysql_repo_sample": [
+    {
+      "name" : "db1",
+      "type" : "mysql",
+      "config" : {
+        "host" :"127.0.0.1",
+        "port" : 3306,
+        "user" : "tester",
+        "password" : "test_pw",
+        "database":"dbtest1",
+        "multipleStatements": true
+      }
+    },
+    {
+      "name" : "db2",
+      "type" : "mysql",
+      "config" : {
+        "host" :"127.0.0.1",
+        "port" : 3306,
+        "user" : "tester",
+        "password" : "test_pw",
+        "database":"dbtest2",
+        "multipleStatements": true
+      }
+    }    
+  ],
+  "mysql_insert_sample" : {
+    "name" : "db1-w",
+    "type" : "mysql",
+    "config" : {
+      "host" :"127.0.0.1",
+      "port" : 3306,
+      "user" : "tester",
+      "password" : "test_pw",
+      "database":"dbTest1",
+      "multipleStatements": true
+    }
+  },
+  "console" : {
+    "name" : "console",
+  	"type" : "console"
+  }
+}

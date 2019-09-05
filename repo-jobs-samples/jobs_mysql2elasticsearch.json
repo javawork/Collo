@@ -1,0 +1,11 @@
+{
+    "mysql_sample" : {
+        "schedule" : "* * * * * *",
+        "from" : "mysql_read_sample",
+        "get_query" : "select sqn, company, sales from tb4read where sqn>? order by sqn;",
+        "get_query_param" : "@__lastNumber_sqn as int",
+        "to": ["esTest"],
+        "set_query": ["{\"index\":\"sample_index\",\"type\":\"_doc\",\"body\": {\"@timestamp\" :?, \"sqn\" : ?, \"company\" : ?, \"sales\" : ?}}"],
+        "set_query_param": ["@__today as datetime_yyyymmdd, @sqn as int, @company as string, @sales as int"]
+    }
+}

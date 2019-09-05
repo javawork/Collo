@@ -238,15 +238,19 @@ var util_date = {
       getDiffWeeks: function(f , s){
             var date1 = new Date(f);
             var date2 = new Date(s);
-            var timediff = Math.round( date1.getTime() - date2.getTime() );
-            return Math.ceil( timediff/(1000*3600*24*7));
+            return Math.round( Math.abs(date1 -date2) / 604800000 );
       },
       getDiffMonths: function(f , s){
             var date1 = new Date(f);
             var date2 = new Date(s);
-            var months = (date2.getFullYear() - date1.getFullYear()) * 12;
-            months -= date1.getMonth() + 1;
-            months += date2.getMonth();
+            var months = Math.abs(date2.getFullYear() - date1.getFullYear()) * 12;
+            if(date1 > date2){
+                  months += date1.getMonth();
+                  months -= date2.getMonth();
+            }else{
+                  months -= date1.getMonth();
+                  months += date2.getMonth();
+            }
 
             return months <= 0 ? 0:months;
       },

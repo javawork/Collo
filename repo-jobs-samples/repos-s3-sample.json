@@ -1,0 +1,16 @@
+{
+  "s3_repo" : {
+    "name" : "log_s3",
+    "type" : "s3",
+    "config" : {
+      "accessKeyId": "AK.........",
+      "secretAccessKey": "ZE...........",
+      "region": "ap-northeast-2"
+    },
+    "s3param" : { "Bucket": "your-bucket-name",  "Key" : "data/line_formated_sample.log"}
+  },
+  "console" : {
+    "name": "console",
+    "type": "console"
+  }
+}

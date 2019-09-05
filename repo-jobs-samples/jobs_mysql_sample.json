@@ -1,0 +1,11 @@
+{
+    "mysql_sample" : {
+        "schedule" : "* * * * * *",
+        "from" : "multi_mysql_repo_sample",
+        "get_query" : "select sqn, company, sales from tb4read where sqn>? order by sqn;",
+        "get_query_param" : "@__lastNumber_sqn as int",
+        "to": ["mysql_insert_sample"],
+        "set_query": ["insert into tb4write (company, sales) values (?, ?)"],
+        "set_query_param": ["@company as string, @sales as int"]
+    }
+}

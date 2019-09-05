@@ -1,0 +1,10 @@
+{
+    "mysql_sample" : {
+        "schedule" : "* * * * * *",
+        "from" : "s3_repo",
+        "get_query" : "grok { %{IP:ip} }",
+		"to" : ["console"],
+		"set_query" : ["{\"ip\":?}"],
+		"set_query_param": ["@ip as string"]
+    }
+}

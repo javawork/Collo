@@ -1,0 +1,27 @@
+{
+  "mysql_read_sample" : {
+    "name" : "db4read",
+    "type" : "mysql",
+    "config" : {
+      "host" :"127.0.0.1",
+      "port" : 3306,
+      "user" : "tester",
+      "password" : "tester_pass",
+      "database":"dbTest1",
+      "multipleStatements": true
+    }
+  },
+  "esTest" : {
+    "name" : "elasticsearchTest",
+    "type" : "elasticsearch",
+    "config": {
+      "node" : "http://127.0.0.1:9200",
+      "keepAlive": "true",
+      "keepAliveInterval": 1000
+    }
+  },
+  "console" : {
+    "name" : "console",
+  	"type" : "console"
+  }
+}

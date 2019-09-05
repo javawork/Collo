@@ -1,0 +1,10 @@
+{
+    "mysql_sample" : {
+        "schedule" : "* * * * * *",
+        "from" : "redis_repo",
+        "get_query" : "lpop test_key",
+        "to": ["mysql_insert_sample", "console"],
+        "set_query": ["insert into tb4write (company, sales) values (?, ?)", "company=?, sales=?"],
+        "set_query_param": ["@company as string, @sales as int", "@company as string, @sales as int"]
+    }
+}
