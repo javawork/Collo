@@ -1,0 +1,9 @@
+{
+    "http_sample" : {
+        "schedule" : "* * * * * *",
+        "from" : "rest_api_repo",
+        "to": ["console"],
+        "set_query": ["{\"ip\":?}"],
+        "set_query_param": ["@ip as string"]
+    }
+}

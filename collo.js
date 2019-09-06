@@ -38,6 +38,7 @@ var g_watchingLogDate = '';
 var g_watchingLogFile = "./logs/log-";
 var g_tail = null;
 var g_tailValue = '[' + new Date().yyyymmddtime() + '] RESTART \n';
+var g_restapi_repo = {};
 //	require & define global variables
 ///////////////////////////////////////////////////////
 
@@ -137,17 +138,18 @@ app.use(express.static('public'));
 app.use(express.static(path.join(__dirname,'css')));
 app.set('view engine','ejs');
 app.use(cors());
-app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 const server = app.listen(10531, ()=>{	//	no meaning port number!!
 	init();
-	logger.info(" START Colloco on port 19899!");
+	console.log(" START Colloco on port 10531!");
+	logger.info(" START Colloco on port 10531!");
 });
 app.use(function(req,res,next){
 	next();
 });
-async function init(){
 
+async function init(){
 	if(REPOdata["console"] === undefined){
 		REPOdata["console"] = {"name" : "console","type" : "console"};
 	}
@@ -494,6 +496,25 @@ app.post('/save_repojob', function(req,res){
 	res.redirect('/?reload=repo');
 });
 
+app.post('/put', function(req,res){
+	if(req.body !== undefined){
+		var data = JSON.parse( JSON.stringify(req.body));
+		if(data.repo_key === undefined){
+			res.send({'err' : 'It do not have a key value'});		
+		}else{
+			if(g_restapi_repo[data.repo_key] === undefined)
+				g_restapi_repo[data.repo_key] = [];
+			if(Array.isArray(data.body)){
+				for(var idx in data.body){
+					g_restapi_repo[data.repo_key].push( data.body[idx]);
+				}
+			}else{
+				g_restapi_repo[data.repo_key].push( data.body);
+			}
+		}
+	}
+	res.send({'result' : 'OK'});
+});
 //	routes
 //////////////////////////////////////////////////////////////////////////
 
@@ -634,6 +655,8 @@ async function startDataSync(){
 //	: process jobs
 async function procJobs( key){
 	JOB[key].bProc = 1;
+	if(JOB[key].get_query === undefined)
+		JOB[key].get_query = "json {}";
 	var ret = [];
 	if(Array.isArray(REPO[JOB[key].from]) == true){
 		for(let ele of REPO[JOB[key].from]){
@@ -827,6 +850,17 @@ function readData(db, job){
 				}).catch((err) => {
 					reject(err);
 				});
+			}
+		}else if(db.type == "rest_api"){
+			if(db.key === undefined)
+				reject({"err" : "incorrect rest_api key!"});
+			else{
+				var ret = [];
+				for(var idx in g_restapi_repo[db.key])
+					ret.push( g_restapi_repo[db.key][idx]);
+				g_restapi_repo[db.key] = [];
+
+				resolve(ret);
 			}
 		}else if(db.type == "file" || db.type == "s3"){
 			if( (db.type == "file" && db.file === undefined) || db.type == "s3" && (db.s3 === undefined || db.s3param ===undefined)){

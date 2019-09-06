@@ -1,0 +1,11 @@
+{
+  "rest_api_repo": {
+    "name": "repoFromHttp",
+    "type": "rest_api",
+    "key" : "sampleKey"
+  },
+  "console" : {
+  	"type" : "console",
+  	"name" : "console"
+  }
+}
