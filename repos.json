@@ -1,20 +1,20 @@
 {
-  "grok_file_repo": {
+  "grok_file_repo": [{
     "type": "file",
     "name": "grok_sample_file",
     "config": {
       "path": "./samples/line_formated_sample.log"
     }
-  },
-  "daily_file_sample": {
+  }],
+  "daily_file_sample": [{
     "type": "file",
     "name": "file_for_today",
     "config": {
       "path": "./samples/today_file_@__today.txt"
     }
-  },
-  "console" : {
+  }],
+  "console" : [{
   	"type" : "console",
   	"name" : "console"
-  }
+  }]
 }

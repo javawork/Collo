@@ -14,7 +14,7 @@ const fs = require('fs');
 const redis = require('redis');
 const sql = require('mssql');
 const mysql = require('mysql');
-//const {Client} = require('@elastic/elasticsearch');
+//const {Client} = require('@elastic/elasticsearch');	//for using secure
 const ES = require('elasticsearch');
 
 const app = express();
@@ -45,7 +45,6 @@ var g_restapi_repo = {};
 //////////////////////////////////////////////////////////////////////////
 //	utility functions
 
-
 //	isEmpty
 //	: check the value is empty or not
 var isEmpty = function(value){ if( value == "" || value == null || value == undefined || ( value != null && typeof value == "object" && !Object.keys(value).length ) ){ return true }else{ return false } };
@@ -71,7 +70,7 @@ function getKeyByValue(object, value) {
 			return arr[i];
 		}
 	}
-	return -1;
+	return undefined;
 }
 
 //	clearSpecialCharacter
@@ -100,20 +99,16 @@ async function write(fn, data){
 	});
 }
 
-//	getSubValue
-//	: ??
 function getSubValue (object, keyArray){
 	var objTemp = object;
 	keyArray.forEach(function(ele){
-		objTemp = getSubValues(objTemp, ele);
+		objTemp = getSubValueFromObject(objTemp, ele);
 	});
 	
 	return objTemp;
 }
 
-//	getSubValuess
-//	: find a value from sub object by given key
-function getSubValues(object, key){
+function getSubValueFromObject(object, key){
 	if(typeof object == "object"){
 		return object[key];
 	}
@@ -151,7 +146,7 @@ app.use(function(req,res,next){
 
 async function init(){
 	if(REPOdata["console"] === undefined){
-		REPOdata["console"] = {"name" : "console","type" : "console"};
+		REPOdata["console"] = [{"name" : "console","type" : "console"}];
 	}
 
 	console.log("read save data ... ");
@@ -577,7 +572,7 @@ async function AWSSet(element, config){
 //	Do jobs!
 
 //	startDataSync
-//	: run jobs!!
+//	: Do jobs!!
 async function startDataSync(){
 	for(let key of Object.keys(REPO)){
 		if(Array.isArray(REPO[key]) == true){
@@ -658,6 +653,8 @@ async function procJobs( key){
 	if(JOB[key].get_query === undefined)
 		JOB[key].get_query = "json {}";
 	var ret = [];
+
+	//	you could add more than one repository in one repo in your repos.json file.
 	if(Array.isArray(REPO[JOB[key].from]) == true){
 		for(let ele of REPO[JOB[key].from]){
 			if(ele === undefined){
@@ -680,21 +677,10 @@ async function procJobs( key){
 				ret = {};
 			});
 		}
-	}else{
-		if(REPO[JOB[key].from] === undefined){
-			console.log("Repogitory [" + JOB[key].from + "] isn't exist!");
-			logger.error("Repogitory [" + JOB[key].from + "] isn't exist!");
-			ret = {};
-		}else{
-			await readData(REPO[JOB[key].from], JOB[key]).then(function(res){
-				ret = res ;
-			}).catch(function(err){
-				console.trace();
-				console.log( err );
-				logger.error(  "error "+ key + ">> "+ err  );
-				ret = {};
-			});
-		}
+	}else
+	{
+		logger.error("You have to be set your repository infomation in array even you have just one repogitory.");
+		return;
 	}
 
 	if(typeof ret === 'string')
@@ -706,7 +692,7 @@ async function procJobs( key){
 		ret.push( temp );
 	}
 
-	if(ret != null && ret.length > 0){
+	if(ret != null && ret.length > 0 && ret[0] !== '' && ret[0] !== null && ret[0] !== undefined) {
 		for(var wl=0;wl<JOB[key].to.length;wl++)
 		{
 			if(Array.isArray(REPO[ JOB[key].to[wl] ]) == true){
@@ -744,7 +730,7 @@ function readData(db, job){
 	return new Promise(async (resolve, reject) => {
 		//	make a query
 		var query = job.get_query;
-		query = parseQuery(db, job, job.get_query_param, query);	
+		var psdQuery = parseQuery(db, job, job.get_query_param, query);	
 
 		//	DO query
 		if(db.type == 'mssql'){
@@ -752,9 +738,9 @@ function readData(db, job){
 			if(!request){
 				reject('failed to request on mssql!');
 			}else{
-				request.query(query, (err, result) => {	//	request get_query in _jobs.js 
+				request.query(psdQuery.query, (err, result) => {	//	request get_query in _jobs.js 
 					if(err){
-						console.log( "mssql error ",err, query);
+						console.log( "mssql error ",err, psdQuery.query);
 						reject(err);
 					}else{
 						var ret = [];
@@ -788,9 +774,9 @@ function readData(db, job){
 		}else if(db.type == 'mysql'){
 			var pool = db.pool.acquire();
 			pool.then(function(conn){
-				conn.query(query, function(err, result){
+				conn.query(psdQuery.query, psdQuery.params, function(err, result){
 					if(err){
-						console.log( "mysql error ",err, query);
+						console.log( "mysql error ",err, psdQuery.query);
 						db.pool.release(conn);
 						reject(err);
 					}else{
@@ -830,7 +816,7 @@ function readData(db, job){
 				});
 			});
 		}else if(db.type == 'redis'){
-			var listQueryCmd= query.split(' ');
+			var listQueryCmd= psdQuery.query.split(' ');
 			var cmd = listQueryCmd[0].trim();
 			listQueryCmd.splice(0,1);
 
@@ -841,7 +827,7 @@ function readData(db, job){
 			});
 		}else if(db.type == 'elasticsearch'){
 			if(db.es !== undefined){
-				db.es.search(JSON.parse(query)).then((res) => {
+				db.es.search(JSON.parse(psdQuery.query)).then((res) => {
 					if(res.hits === undefined){
 						reject("EMPTY");
 					}else{
@@ -869,14 +855,14 @@ function readData(db, job){
 			}
 
 			{
-				var sp = query.indexOf("{");
-				var lp = query.lastIndexOf("}");
+				var sp = psdQuery.query.indexOf("{");
+				var lp = psdQuery.query.lastIndexOf("}");
 				if(sp == -1 || lp ==-1){	//	분석할 grok pattern 없거나 오류가 있음.
 					console.log("Incorrect pattern");
 					reject("Incorrect pattern");
 				}
-				var cmd = query.slice(0, sp).trim();
-				var pattern = query.slice(sp+1, lp-1).trim();
+				var cmd = psdQuery.query.slice(0, sp).trim();
+				var pattern = psdQuery.query.slice(sp+1, lp-1).trim();
 				var readPattern = grok.createPattern(pattern);
 
 				var sValue = {};
@@ -1001,10 +987,10 @@ function writeData(db, job, idx, values){
 			if(Array.isArray(values) == true){
 				values.forEach((q) => {
 					let query = _.clone(job.set_query[idx]);
-					query = parseQuery(db, job, job.set_query_param[idx], query, q);
+					var psdQuery = parseQuery(db, job, job.set_query_param[idx], query, q);
 					{
 						//	insert
-						request.query(query, (err, result) => {
+						request.query(psdQuery.query, (err, result) => {
 							if(err){
 								console.log( "err >> " + err );
 							    logger.warn('{"err":"'+ err + '"}');
@@ -1033,8 +1019,10 @@ function writeData(db, job, idx, values){
 					logger.warn(values);
 				}else{
 					//	insert
+					let query = _.clone(job.set_query[idx]);
+					var psdQuery = parseQuery(db, job, job.set_query_param[idx], query, q);
 					{
-						request.query(query, (err, result) => {
+						request.query(psdQuery.query, (err, result) => {
 							if(err){
 								console.log( "err >> " + err );
 							    logger.warn('{"err":"'+ err + '"}');
@@ -1050,13 +1038,13 @@ function writeData(db, job, idx, values){
 			if(Array.isArray(values) == true){
 				values.forEach((q) => {
 					let query = _.clone(job.set_query[idx]);
-					query = parseQuery(db, job, job.set_query_param[idx], query, q);
+					var psdQuery = parseQuery(db, job, job.set_query_param[idx], query, q);
 
 					{
 						//	insert
 						var pool = db.pool.acquire();
 						pool.then(function(conn){
-							conn.query(query, function(err, rows){
+							conn.query(psdQuery.query, psdQuery.params, function(err, rows){
 								db.pool.release(conn);
 								if(err){
 									console.log( "err >> " + err );
@@ -1075,12 +1063,12 @@ function writeData(db, job, idx, values){
 				});
 			}else{
 				let query = _.clone(job.set_query[idx]);
-				query = parseQuery(db, job, job.set_query_param[idx], query, values);
+				var psdQuery = parseQuery(db, job, job.set_query_param[idx], query, values);
 				{
 					//	insert
 					var pool = db.pool.acquire();
 					pool.then(function(conn){
-						conn.query(query, function(err, rows){
+						conn.query(psdQuery.query, psdQuery.params, function(err, rows){
 							db.pool.release(conn);
 							if(err){
 								console.log( "err >> " + err );
@@ -1127,16 +1115,16 @@ function writeData(db, job, idx, values){
 			if(db.es !==undefined){
 				if(Array.isArray(values) == true){
 					values.forEach(function(ele){
-						query = parseQuery(db, job, job.set_query_param[idx], query, ele);
-						db.es.index(JSON.parse(query)).then((res) => {
+						var psdQuery = parseQuery(db, job, job.set_query_param[idx], query, ele);
+						db.es.index(JSON.parse(psdQuery.query)).then((res) => {
 							resolve(res);
 						}).catch((err) => {
 							reject(err);
 						});
 					});
 				}else{
-					query = parseQuery(db, job, job.set_query_param[idx], query, values);
-					db.es.index(JSON.parse(query)).then((res) => {
+					var psdQuery = parseQuery(db, job, job.set_query_param[idx], query, values);
+					db.es.index(JSON.parse(psdQuery.query)).then((res) => {
 						resolve(res);
 					}).catch((err) => {
 						reject(err);
@@ -1152,8 +1140,8 @@ function writeData(db, job, idx, values){
 				});
 			}else{
 				let query = _.clone(job.set_query[idx]);
-				query = parseQuery(db, job, job.set_query_param[idx], query, values);
-				console.log( query );
+				var psdQuery = parseQuery(db, job, job.set_query_param[idx], query, values);
+				console.log( psdQuery.query );
 			}
 			resolve({});
 		}else if(db.type == "file"){
@@ -1161,12 +1149,12 @@ function writeData(db, job, idx, values){
 				values.forEach(function(ele){
 					{
 						let query = _.clone(job.set_query[idx]);
-						query = parseQuery(db, job, job.set_query_param[idx], query, ele);
+						var psdQuery = parseQuery(db, job, job.set_query_param[idx], query, ele);
 
 						//	insert
 						var fn = parseName(db.file.path);
 						var ws = fs.createWriteStream(fn, { flags: 'a', encoding: 'utf-8'});
-						ws.write(query + "\n");
+						ws.write(psdQuery.query + "\n");
 						ws.end(function(){
 							resolve({});
 						});
@@ -1188,17 +1176,21 @@ function writeData(db, job, idx, values){
 //	parseQuery
 //	: parse query and replace parameters to data
 function parseQuery(db, job, query_param, query, element){
+	var params = [];
 	if( (query.match(/\?/g) || []).length > 0){
 		if(query_param !== undefined){
 			var listParam = query_param.split(',');
 			for(var i=0;i<listParam.length;i++)	{
 				var param = parseParam( db, job, listParam[i] ,element);
-				query = query.replace('?', param);
+				if(db.type == 'mysql')
+					params.push(param);
+				else
+					query = query.replace('?', param);
 			}
 		}
 	}
 
-	return query;
+	return {"query":query, "params" : params };
 }
 //	getInputParam
 //	: parse input parameters
@@ -1214,7 +1206,7 @@ function getInputParam(value){
 }
 
 //	parseName
-//	: replace special keywords about time with datetime value.
+//	: replace special keywords about time with datetime value for repo name
 function parseName(_name){
 	var name = _name;
 	if(_name.indexOf("@__today_ymdnumber") != -1 ){
@@ -1257,6 +1249,14 @@ function parseParam(db, job, param, value){
 		ret = getDatetimeFormat( chk.type, util_date.getNextDay(new Date(),-1) );
 	else if(chk.param == '@__tomorrow')
 		ret = getDatetimeFormat( chk.type, util_date.getNextDay(new Date(),1) );
+	else if(chk.param.indexOf("@__today_ymdnumber") != -1 )
+		ret = chk.param.replace("@__today_ymdnumber", new Date().yyyymmddINT());
+	else if(chk.param.indexOf("@__today") != -1 )
+		ret = chk.param.replace("@__today", new Date().yyyymmdddash());
+	else if(chk.param.indexOf("@__yesterday_ymdnumber") != -1 )
+		ret = chk.param.replace("@__yesterday_ymdnumber", util_date.getNextDay(new Date(),-1).yyyymmddINT());
+	else if(chk.param.indexOf("@__yesterday") != -1 )
+		ret = chk.param.replace("@__yesterday", util_date.getNextDay(new Date(),-1).yyyymmdddash());
 	else if((chk.param.match(/@__daysago/g) || []).length > 0)
 		ret = getDatetimeFormat( chk.type, util_date.getNextDay(new Date(),-param.split('@')[0]) );
 	else if((chk.param.match(/@__weeksago/g) || []).length > 0)
@@ -1269,9 +1269,9 @@ function parseParam(db, job, param, value){
 		var jobName = getKeyByValue(JOB, job);
 		var key = '';
 		if(chk.param.indexOf('@__lastNumber_') >= 0){
-			key = /*"ln_" + */chk.param.slice(chk.param.indexOf('@__lastNumber_') + '@__lastNumber_'.length, chk.param.length);
+			key = chk.param.slice(chk.param.indexOf('@__lastNumber_') + '@__lastNumber_'.length, chk.param.length);
 		}else if(chk.param.indexOf('@__lastInstanceNumberByDay_') >= 0){
-			key = /*"ln_" + 이거 이유가 있었는데... T-T 까먹음. 다시 찾아보자. */chk.param.slice(chk.param.indexOf('@__lastInstanceNumberByDay_') + '@__lastInstanceNumberByDay_'.length, chk.param.length);
+			key = chk.param.slice(chk.param.indexOf('@__lastInstanceNumberByDay_') + '@__lastInstanceNumberByDay_'.length, chk.param.length);
 		}
 
 		if(g_save_data[jobName] === undefined){
@@ -1282,6 +1282,12 @@ function parseParam(db, job, param, value){
 		}
 		if(g_save_data[jobName][db.name][key] === undefined){
 			g_save_data[jobName][db.name][key] = {'value' : 0};
+		}
+		if(chk.param.indexOf('@__lastInstanceNumberByDay_') >= 0){
+			if( new Date().yyyymmddINT() != g_save_data[jobName][db.name][key].day ){
+				g_save_data[jobName][db.name][key].day = new Date().yyyymmddINT();
+				g_save_data[jobName][db.name][key].value = 0;
+			}
 		}
 		ret = g_save_data[jobName][db.name][key].value;
 	}else{	//	change from pre_defined_data to a really data you read
@@ -1303,8 +1309,10 @@ function parseParam(db, job, param, value){
 		}
 		else{
 			var quotes = "\"";
-			if(db.type == 'mssql' ||  db.type == 'mysql')
+			if(db.type == 'mssql')
 				quotes = "\'";
+			else if(db.type == 'mysql')
+				quotes = "";
 
 			if(chk.type=='string')
 				ret = quotes + value[name] + quotes;
@@ -1312,33 +1320,32 @@ function parseParam(db, job, param, value){
 				ret = quotes + new Date(value[name]).mmddyyyytime() + quotes;
 			else if(chk.type=='datetime_yyyymmdd')
 				ret = quotes + new Date(value[name]).yyyymmddtime() + quotes;
-/*			
-			//	It works. But it needs to standardize.
+			else if(chk.type == 'binary'){
+				try{
+					ret = Buffer.from(value[name]);	
+				}catch(err){
+					console.log( "BUFFER ERROR =", err);
+					logger.error(err + ", TRACE : " + console.trace());
+				}
+			}else if(chk.type == 'binary_read' || chk.type == 'zipped_binary_read'){	
+				try{
+					var dat = Buffer.from(value[name]);
+					var origin = dat;
+					if(chk.type == 'zipped_binary_read')
+						origin = zlib.inflateSync(dat);
 
-			else if(chk.type == 'binary')
-				ret = quotes + Buffer(value[name]).toString('hex') + quotes;
-			else if(chk.type == 'binary_read'){
-				var origin = Buffer.from(value[name], 'hex');
-				if(chk.options != null){
-					if(chk.options[0] == 'uint16'){
-						ret = origin.readUInt16LE( parseInt(chk.options[1]) );
-						console.log("serial =", ret);
-					}else
-						ret = 0;
+					if(chk.options != null){
+						if(chk.options[0] == 'uint16'){
+							ret = dat.readUInt16LE( parseInt(chk.options[1]) );
+							console.log("serial =", ret);
+						}else
+							ret = 0;
+					}
+				}catch(err){
+					console.log( "BUFFER ERROR =", err);
+					logger.error(err + ", TRACE : " + console.trace());
 				}
-			}else if(chk.type == 'zipped_binary_read'){
-				var dat = Buffer.from(value[name], 'hex');
-				var origin = zlib.inflateSync(dat);	//	uncompress ... 
-				if(chk.options != null){
-					if(chk.options[0] == 'uint16'){
-						ret = origin.readUInt16LE( parseInt(chk.options[1]) );
-						console.log("serial =", ret);
-					}else
-						ret = 0;
-				}
-			}
-*/
-			else {
+			}else {
 				ret = value[name];
 			}
 		}
