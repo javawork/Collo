@@ -1,6 +1,6 @@
 {
     "grok2file_console_sample" : {
-        "schedule" : "* * * * * *",
+        "schedule" : "*/2 * * * * *",
         "from" : "grok_file_repo",
         "get_query" : "grok { %{IP:ip} }",
         "to": ["daily_file_sample", "console"],
