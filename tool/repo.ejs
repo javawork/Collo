@@ -49,11 +49,16 @@
         <% }else if(page[1][key].type == 'redis'){ %>
         <tr><td>IP</td><td><input type="text" class="form-control" oninput="modified_repo('<%=key%>');" id="repo_redis_ip_<%=key%>" value="<%= page[1][key].ip %>"></td></tr>
         <tr><td>PORT</td><td><input type="text" class="form-control" oninput="modified_repo('<%=key%>');" id="repo_redis_port_<%=key%>" value="<%= page[1][key].port %>"></td></tr>
-    	<% } %>
 
-        <% if(page[1][key].type == 's3'){ %>
+        <% }else if(page[1][key].type == 's3'){ %>
         <tr><td>Bucket Name</td><td><input type="text" class="form-control" oninput="modified_repo('<%=key%>');" id="txt_repo_s3bucket_<%=key%>" value="<%= page[1][key]['s3param'].Bucket %>"></td></tr>
         <tr><td>Key</td><td><input type="text" class="form-control" oninput="modified_repo('<%=key%>');" id="txt_repo_s3bucket_key_<%=key%>" value="<%= page[1][key]['s3param'].Key %>"></td></tr>
+        <% }else { %>
+        <tr><td colspan=2>
+            <div class="form-group">
+              <textarea class="form-control" id="repo_ta_<%=key%>" oninput="modified_repo('<%=key%>');" rows=7><%= JSON.stringify(page[1][key], null, 2); %></textarea>
+            </div>
+        </td></tr>
         <% } %>
         </table>
     </h5>

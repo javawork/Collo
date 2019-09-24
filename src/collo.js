@@ -1,5 +1,7 @@
 ///////////////////////////////////////////////////////
 //	require & define local variables
+const HTTP_PORT = 10531;
+
 const _ = require('lodash/core');
 const path = require('path');
 const express = require('express');
@@ -35,7 +37,7 @@ var g_bWaitingSaveData = false;
 var g_cron_jobs = {};
 var g_save_data = {};
 var g_watchingLogDate = '';
-var g_watchingLogFile = "./logs/log-";
+var g_watchingLogFile = "../logs/log-";
 var g_tail = null;
 var g_tailValue = '[' + new Date().yyyymmddtime() + '] RESTART \n';
 var g_restapi_repo = {};
@@ -128,17 +130,17 @@ const CollorManager = schedule.scheduleJob( "*/5 * * * * *", async function(){
 });
 setInterval(keepAliveForREPO, 60*1000);
 
-app.set('views',path.join(__dirname,'tool'));
+app.set('views',path.join(__dirname,'../tool'));
 app.use(express.static('public'));
-app.use(express.static(path.join(__dirname,'css')));
+app.use(express.static(path.join(__dirname,'../css')));
 app.set('view engine','ejs');
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-const server = app.listen(10531, ()=>{	//	no meaning port number!!
+const server = app.listen(HTTP_PORT, ()=>{	//	no meaning port number!!
 	init();
-	console.log(" START Colloco on port 10531!");
-	logger.info(" START Colloco on port 10531!");
+	console.log(" START Colloco on port " + HTTP_PORT);
+	logger.info(" START Colloco on port " + HTTP_PORT);
 });
 app.use(function(req,res,next){
 	next();

@@ -4,7 +4,7 @@
         "from" : "grok_file_repo",
         "get_query" : "grok { %{IP:ip} }",
         "to": ["daily_file_sample", "console"],
-        "set_query": ["'date': ? , 'ip' : ?", "{\"ip\":?}"],
+        "set_query": ["{'date': ? , 'ip' : ?}", "{\"ip\":?}"],
         "set_query_param": ["@__yesterday as datetime_mmddyyyy, @ip as string", "@ip as string"]
     }
 }
