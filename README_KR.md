@@ -11,21 +11,30 @@ Collo는 간단한 세팅을 통해 다양한 포멧으로 저장되어 여러 �
 
 현재 Collo는 아래의 같은 저장소를 지원합니다.
 
- <읽기 가능한 저장소>
+<읽기 가능한 저장소>
 
-MSSQL, MySQL, Elasticsearch, Redis, File System, AWS S3, REST API
+* MSSQL
+* MySQL
+* Elasticsearch
+* Redis
+* AWS S3
+* File
+* REST API
 
- <쓰기 가능한 저장소>
+<쓰기 가능한 저장소>
 
-MSSQL, MySQL, Elasticsearch, Redis, File System
+* MSSQL
+* MySQL
+* Elasticsearch
+* Redis
+* File System
+* Console
 
 읽기, 쓰기 시 grok, SQL, Elasticsearch DSL 등을 그대로 활용할 수 있습니다. 
 
-내부적으로 모든 데이터를 JSON 형태로 다루기 때문에 손쉽게 필요한 데이터들을 추가, 수정할 수 있습니다. 
+내부적으로 모든 데이터를 JSON 형태로 다루기 때문에 손쉽게 필요한 데이터들을 추가, 수정할 수 있습니다. 이는 첨부된 샘플을 통해 좀 더 상세히 설명하겠습니다.
 
-첨부된 샘플을 통해 좀 더 상세히 설명하겠습니다.
-
-또한 Collo는 관리 편의를 위해 TCP 10531번 포트를 이용하는 관리툴을 제공하고 있습니다.
+또한 Collo는 관리 편의를 위해 TCP 10531번 포트를 이용하는 관리툴을 제공하고 있습니다. 하단의 "관리툴" 항목을 참고하세요.
 
 
 ## 활용 예
@@ -53,6 +62,8 @@ MSSQL, MySQL, Elasticsearch, Redis, File System
 
 ## Collo 의 구성
 
+
+<pre><code>
 .
 ├── css                     # Css files for tool
 ├── docs                    # Documentation files
@@ -69,7 +80,7 @@ MSSQL, MySQL, Elasticsearch, Redis, File System
 ├── repos.json              # Repositories what you want to read/write
 .
 .
-
+</code></pre>
 재사용을 위한 일부 코드를 제외하고 핵심 코드는 모두 collo.js에서 확인할 수 있습니다.
 
 
@@ -131,12 +142,19 @@ MSSQL, MySQL, Elasticsearch, Redis, File System
 </code></pre>
 
 __schedule__ : cron처럼 작업이 실행될 일정을 설정합니다. 위 예제에서는 2초에 한번씩 작업이 실행됩니다.
+
 __from__ : 데이터를 가져올 저장소를 지정합니다. "repos.json"에 지정했던 "저장소 이름"을 입력합니다.
+
 __get_query__ : __from__ 에서 데이터를 가져오는 조건을 지정합니다. 지정된 저장소의 종류에 맞게 쿼리를 작성해야 합니다.
+
 (option)__get_query_param__ : __get_query__ 의 수행이 필요한 파라미터를 설정할 때 사용합니다.
+
 (option)__filter__ : __get_query__ 의 결과값에 데이터를 추가할 때 사용합니다.
+
 __to__ : 데이터를 전달할 저장소를 지정합니다. console 혹은 "repos.json"에 지정했던 "저장소 이름"을 입력합니다. 전달할 저장소를 다중으로 지정할 수 있습니다. 반듯이 [] 로 감싸주세요.
+
 __set_query__ : __to__ 에서 데이터를 삽입하는 쿼리를 지정합니다. 지정된 저장소의 종류에 맞게 쿼리를 작성해야 합니다. 전달할 저장소에 맞개 다중으로 지정할 수 있습니다. 반듯이 [] 로 감싸주세요.
+
 (option)__set_query_param__ : __set_query__ 의 수행이 필요한 파라미터를 설정할 때 사용합니다.
 
 보다 상세한 정보는 [상세 예제보기](SETTING.md)를 참고하세요.
@@ -154,7 +172,7 @@ MSSQL과 MySQL 저장소 테스트를 위해 ./samples의 "collo-mssql-sample-db
 진행중인 데이터를 기록하기 위해 "./src/savedata.json"이라는 파일을 사용합니다. 만약 초기화가 필요한 경우 해당 파일을 지우거나 수정하여 사용할 수 있습니다.
 
 
-## Management Tool
+## 관리툴
 
 Collo가 제공하는 관리툴로 위 설정을 좀 더 쉽게 할 수 있으며, 기존의 작업을 멈추지 않고도 저장소와 작업을 추가 할 수 있습니다. 실행한 시스템에서 http://localhost:10531 로 접속하면 관리툴을 확인할 수 있습니다. 
 
