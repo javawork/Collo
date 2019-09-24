@@ -219,5 +219,3 @@ We encourage contributions of all kinds. If you would like to contribute in some
 ## License infomation
 
 __Collo__ is distributed under the terms and conditions of the MIT license.
-
-Copyright (c) 2019 Lee, Ji Hyun
