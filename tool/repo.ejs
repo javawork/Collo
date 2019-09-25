@@ -23,7 +23,7 @@
         for(var k in jobs){
             console.log ( jobs[k] );
             console.log(jobs[k].from , key , jobs[k].to);
-            if(jobs[k].from == key || jobs[k].to == key)
+            if(jobs[k].from == key || jobs[k].to == key)    //   It can not find if the repository has a Collo's keyword such as @__today.
             {
                 bDeletePossible = false;
                 break;
@@ -237,6 +237,7 @@
     }
 
     function delete_Job(key){
+        console.log(" delete_Job " , key );
         //  check if this repo is in use at a job.
         if (confirm('Are you sure you want to save this thing into the database?')) {
             console.log(" SEND DELETE JOB ", key);
