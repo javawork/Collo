@@ -716,6 +716,7 @@ async function procJobs( key){
 				});
 			}
 		}
+		console.log( key, " job end!!");
 	}else{
 		logger.info("JOB [ " + key + "] is waiting a new data !");
 		console.log(key, " Waiting new one..");
@@ -723,7 +724,6 @@ async function procJobs( key){
 	}
 
 	JOB[key].bProc = 0;
-	console.log( key, " job end!!");
 }
 
 //	readData

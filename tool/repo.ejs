@@ -21,16 +21,21 @@
 <%      var bDeletePossible = true;
         var jobs = page[2];
         for(var k in jobs){
-            console.log ( jobs[k] );
-            console.log(jobs[k].from , key , jobs[k].to);
-            if(jobs[k].from == key || jobs[k].to == key)    //   It can not find if the repository has a Collo's keyword such as @__today.
+            if(jobs[k].from == key )
             {
                 bDeletePossible = false;
                 break;
             }
+
+            for(var idx=0;idx < jobs[k].to.length;idx++){
+                if(jobs[k].to[idx] == key){
+                    bDeletePossible = false;
+                    break;
+                }
+            }
         }
         if(bDeletePossible == true) { %>         
-                <button onclick="delete_Repo('<%=key%>', '<%=JSON.stringify(page[2], null, 2)%>');" class="btn btn-sm btn-outline-dark">Delete</button>
+                <button onclick="delete_Repo('<%=key%>');" class="btn btn-sm btn-outline-dark">Delete</button>
     <%  } %>
             </td>
     	</tr>
@@ -273,6 +278,11 @@
                 if(Object.keys(repojobApply["job"]).length ==0)
                     delete repojobApply["job"];
             }
+            var btnId = 'btn-job-apply-'+key;
+            document.getElementById(btnId).disabled = true;
+
+            var btnResetId = 'btn-job-reset-'+key;
+            document.getElementById(btnResetId).disabled = true;
         }
     }
 
@@ -289,6 +299,9 @@
             repojobApply["job"][key] = clearSpecialCharacter(document.getElementById(job_ta).value);
 
         document.getElementById('id_repo_job').disabled = false;
+
+        var btnId = 'btn-job-apply-'+key;
+        document.getElementById(btnId).disabled = true;
     }
 
     function click_repo_reset(key){
@@ -300,6 +313,12 @@
                 if(Object.keys(repojobApply["repo"][key]).length ==0)
                     delete repojobApply["repo"][key];
             }
+
+            var btnId = 'btn-repo-apply-'+key;
+            document.getElementById(btnId).disabled = true;
+
+            var btnResetId = 'btn-repo-reset-'+key;
+            document.getElementById(btnResetId).disabled = true;
         }
 
         var repo_ip = "repo_redis_ip_" + key;
@@ -357,6 +376,9 @@
             repojobApply["repo"][key]["port"] = document.getElementById(repo_port).value;
 
         document.getElementById('id_repo_job').disabled = false;
+
+        var btnId = 'btn-repo-apply-'+key;
+        document.getElementById(btnId).disabled = true;
     }
 
     function click_upload(){
