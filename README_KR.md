@@ -213,11 +213,6 @@ __Apply__ 를 누르면 수정된 내용을 저장하고 하단의 __Upload__ �
 __Delete__ 버튼을 누르면 바로 삭제되면서 Collo가 재시작됩니다. 작업에 사용중인 저장소는 삭제할 수 없습니다.
 
 
-## Contributing
-
-We encourage contributions of all kinds. If you would like to contribute in some way, please review our guidelines for contributing.
-
-
 ## License infomation
 
 __Collo__ is distributed under the terms and conditions of the MIT license.

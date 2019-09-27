@@ -198,11 +198,6 @@ __Apply__ : It saves what's modified in just memory. And it'll send Collo them. 
 __Delete__ : It'll be applied right away if you confirm to delete. If the reposirory is in use, "Delete" button will be unvisible.
 
 
-## Contributing
-
-We encourage contributions of all kinds. If you would like to contribute in some way, please review our guidelines for contributing.
-
-
 ## License infomation
 
 __Collo__ is distributed under the terms and conditions of the MIT license.
