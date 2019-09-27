@@ -1211,12 +1211,12 @@ function getInputParam(value){
 //	: replace special keywords about time with datetime value for repo name
 function parseName(_name){
 	var name = _name;
-	if(_name.indexOf("@__today_ymdnumber") != -1 ){
-		name = _name.replace("@__today_ymdnumber", new Date().yyyymmddINT());
+	if(_name.indexOf("@__today_number") != -1 ){
+		name = _name.replace("@__today_number", new Date().yyyymmddINT());
 	}else if(_name.indexOf("@__today") != -1 ){
 		name = _name.replace("@__today", new Date().yyyymmdddash());
-	}else if(_name.indexOf("@__yesterday_ymdnumber") != -1 ){
-		name = _name.replace("@__yesterday_ymdnumber", util_date.getNextDay(new Date(),-1).yyyymmddINT());
+	}else if(_name.indexOf("@__yesterday_number") != -1 ){
+		name = _name.replace("@__yesterday_number", util_date.getNextDay(new Date(),-1).yyyymmddINT());
 	}else if(_name.indexOf("@__yesterday") != -1 ){
 		name = _name.replace("@__yesterday", util_date.getNextDay(new Date(),-1).yyyymmdddash());
 	}
@@ -1229,13 +1229,13 @@ function parseName(_name){
 function getDatetimeFormat(_type, _date){
 	var ret = '';
 	if(_type == 'int')
-		ret = new Date().yyyymmddINT();
+		ret = new Date(_date).yyyymmddINT();
 	else if(_type == 'datetime_mmddyyyy')
-		ret = '"' + new Date().mmddyyyytimedash() + '"';
+		ret = '"' + new Date(_date).mmddyyyytimedash() + '"';
 	else if(_type == 'datetime_yyyymmdd')
-		ret = '"' + new Date().yyyymmddtimedash() + '"';
+		ret = '"' + new Date(_date).yyyymmddtimedash() + '"';
 	else
-		ret = '"' + new Date().yyyymmdddash() + '"';
+		ret = '"' + new Date(_date).yyyymmdddash() + '"';
 
 	return ret;
 }
@@ -1251,15 +1251,7 @@ function parseParam(db, job, param, value){
 		ret = getDatetimeFormat( chk.type, util_date.getNextDay(new Date(),-1) );
 	else if(chk.param == '@__tomorrow')
 		ret = getDatetimeFormat( chk.type, util_date.getNextDay(new Date(),1) );
-	else if(chk.param.indexOf("@__today_ymdnumber") != -1 )
-		ret = chk.param.replace("@__today_ymdnumber", new Date().yyyymmddINT());
-	else if(chk.param.indexOf("@__today") != -1 )
-		ret = chk.param.replace("@__today", new Date().yyyymmdddash());
-	else if(chk.param.indexOf("@__yesterday_ymdnumber") != -1 )
-		ret = chk.param.replace("@__yesterday_ymdnumber", util_date.getNextDay(new Date(),-1).yyyymmddINT());
-	else if(chk.param.indexOf("@__yesterday") != -1 )
-		ret = chk.param.replace("@__yesterday", util_date.getNextDay(new Date(),-1).yyyymmdddash());
-	else if((chk.param.match(/@__daysago/g) || []).length > 0)
+	else if((chk.param.match(/@__daysago/g) || []).length > 0)	//	ex) 15@__daysago as int
 		ret = getDatetimeFormat( chk.type, util_date.getNextDay(new Date(),-param.split('@')[0]) );
 	else if((chk.param.match(/@__weeksago/g) || []).length > 0)
 		ret = getDatetimeFormat( chk.type, util_date.getNextDay(new Date(),-(param.split('@')[0]*7)) );
@@ -1306,7 +1298,6 @@ function parseParam(db, job, param, value){
 		}
 */		
 		if(value === undefined || value === null){
-			console.log("IN parseParam", name, chk.param, chk.param.length);
 			ret = name;
 		}
 		else{
@@ -1326,7 +1317,7 @@ function parseParam(db, job, param, value){
 				try{
 					ret = Buffer.from(value[name]);	
 				}catch(err){
-					console.log( "BUFFER ERROR =", err);
+					console.log( "BUFFER ERROR =", err , console.trace());
 					logger.error(err + ", TRACE : " + console.trace());
 				}
 			}else if(chk.type == 'binary_read' || chk.type == 'zipped_binary_read'){	
@@ -1339,12 +1330,11 @@ function parseParam(db, job, param, value){
 					if(chk.options != null){
 						if(chk.options[0] == 'uint16'){
 							ret = dat.readUInt16LE( parseInt(chk.options[1]) );
-							console.log("serial =", ret);
 						}else
 							ret = 0;
 					}
 				}catch(err){
-					console.log( "BUFFER ERROR =", err);
+					console.log( "BUFFER ERROR =", err, console.trace());
 					logger.error(err + ", TRACE : " + console.trace());
 				}
 			}else {
