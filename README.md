@@ -4,7 +4,7 @@
 
 This project can help you to collect distributed data into a repository easily even if the data is in anywhere with only simple settings.
 
-Collo was small code and was made for migration from MSSQL to MySQL and Elasticsearch for building DW and Statistics system at [my company](http://www.logickorea.co.kr/). And now, it has improved to import and export another repositories and has more functions.
+Collo was small code and was made for migration from MSSQL to MySQL and Elasticsearch for building DW and Statistics system at [L&K](http://www.logickorea.co.kr/). And now, it has improved to import and export another repositories and has more functions.
 
 You can get data you want if there is a way to search on a repository. And you can modify and save the data. For example, you can use SQL if your repository is MySQL or MSSQL.
 
