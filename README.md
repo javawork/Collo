@@ -2,11 +2,11 @@
 
 ## Collo is short for Collocō. 
 
-This project can help you to collect distributed data into a repository easily even if the data is in anywhere with only simple settings.
+Collo collects data from multiple sources into single repository with simple setting.
 
-Collo was small code and was made for migration from MSSQL to MySQL and Elasticsearch for building DW and Statistics system. And now, it has improved to import and export another repositories and has more functions.
+It was only for integrating into Elasticsearch and MySQL with various formats of data written in files and database while building DW and statistics system. And it has been improved to import from various repositories and convert them to various formats.
 
-You can get data you want if there is a way to search on a repository. And you can modify and save the data. For example, you can use SQL if your repository is MySQL or MSSQL.
+You can save subset of data if you have a way to search them. And adding data is possible as well. For example, you query data from MySQL using SQL statement then save them into Elasticsearch or even files.
 
 The repositories you can import 
 
